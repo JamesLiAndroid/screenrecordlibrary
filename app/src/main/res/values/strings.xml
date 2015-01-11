@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">VideoCpature</string>
+    <string name="hello_world">我是广告占位符</string>
+    <string name="action_settings">设置</string>
+    <string name="action_donate">捐助Screen Recorder</string>
+    <string name="action_about">关于</string>
+    <string name="action_share">分享</string>
+    <string name="action_del">删除</string>
+
+    <!--setting preference strings-->
+    <string name="save_dir">screenrecorder</string>
+    <string name="record_audio">录制音频</string>
+    <string name="record_audio_key">audio</string>
+    <string name="video_dimension">视频分辨率</string>
+    <string name="video_dimension_key">video_size</string>
+    <string name="video_dimension_summary">录制视频分辨率为%1$s</string>
+
+</resources>
