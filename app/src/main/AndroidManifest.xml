@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.elife.videocpature" >
+    package="com.eversince.screenrecord" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -35,6 +35,15 @@
         <service android:name="com.qq.e.comm.DownloadService" android:exported="false"></service>
         <activity android:name="com.qq.e.ads.AdActivity" android:theme="@android:style/Theme.Translucent">
         </activity>
+
+        <activity android:name="com.elife.videocpature.AboutActivity"
+            android:label="关于"
+            android:screenOrientation="portrait"/>
+
+        <service android:name="com.elife.videocpature.RecordService">
+
+        </service>
+
     </application>
 
 </manifest>

@@ -1,9 +1,12 @@
 package com.elife.videocpature;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.projection.MediaProjection;
+import android.content.IntentFilter;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,12 +18,11 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import com.eversince.screenrecord.R;
 import com.qq.e.ads.AdListener;
 import com.qq.e.ads.AdRequest;
 import com.qq.e.ads.AdSize;
@@ -31,7 +33,10 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends Activity {
-    private ImageButton startBtn;
+    public final static String RESULT = "result";
+    public final static String DATA = "data";
+    public final static String ACTION = "com.dchen.videocapture.complete";
+
     private MediaProjectionManager mProjectionManager;
     private static final int REQUEST_CODE = 0x10001;
     private boolean mIsRecording = false;
@@ -41,57 +46,103 @@ public class MainActivity extends Activity {
     private ListView mList;
     private VideoListAdapter mAdapter;
     private RelativeLayout mBannerContainer;
-    private ActionMode mActionMode;
-    private View mSelectedView;
-
+    IntentFilter mFilter;
+    final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equalsIgnoreCase(ACTION))
+            MainActivity.this.initVideoList();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startBtn = (ImageButton)findViewById(R.id.start);
         mProjectionManager = (MediaProjectionManager)(getSystemService(Context.MEDIA_PROJECTION_SERVICE));
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
-        startBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnClicked();
-            }
-        });
-        mList = (ListView) findViewById(R.id.video_list);
 
-        mList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        mList = (ListView) findViewById(R.id.video_list);
+        mList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mActionMode != null) {
-                    return false;
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                int selectedCount = mList.getCheckedItemCount();
+                mode.setTitle(selectedCount+"");
+                if (checked) {
+                    mAdapter.addSelectedPos(position);
+                } else  {
+                    mAdapter.removeSelectedPos(position);
                 }
-                mActionMode = startActionMode(mActionCallback);
-                view.setSelected(true);
-                mSelectedView = view;
-                mAdapter.setSelectedPos(position, view);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.menu_context, menu);
+                getWindow().setStatusBarColor(getResources().getColor(R.color.context_color_dark));
                 return true;
             }
-        });
-        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (view.isSelected()) {
-                    view.setSelected(false);
-                    mAdapter.setSelectedPos(-1, view);
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.share:
+                        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                        ArrayList<String> selectedFile = mAdapter.getSelectedFileName();
+                        if (null == selectedFile)
+                            break;
+                        Uri screenshotUri = Uri.fromFile(new File(selectedFile.get(0)));
+                        sharingIntent.setType("video/*");
+                        sharingIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
+                        MainActivity.this.startActivity(Intent.createChooser(sharingIntent, "分享到："));
+                        mode.finish();
+
+                        break;
+                    case R.id.delete:
+
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setMessage("确认删除所选视频？")
+                                .setPositiveButton("删除", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ArrayList<String> fileNames = mAdapter.getSelectedFileName();
+                                        for (String fileName : fileNames) {
+                                            if (!TextUtils.isEmpty(fileName)) {
+                                                File file = new File(fileName);
+                                                file.delete();
+                                            }
+                                        }
+                                        mode.finish();
+                                    }
+                                }).setNegativeButton("取消", null).show();
+                        break;
+                    default:
+                        break;
                 }
-                if (null != mActionMode) {
-                    mActionMode.finish();
-                    mActionMode = null;
-                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                mAdapter.deSelectAll();
+                initVideoList();
+                getWindow().setStatusBarColor(getResources().getColor(R.color.color_primary_dark));
             }
         });
         initVideoList();
-        android.os.Process.setThreadPriority(-19);
-
         mBannerContainer = (RelativeLayout) findViewById(R.id.banner_container);
         initAdvertise();
+        mFilter = new IntentFilter(ACTION);
+        registerReceiver(mReceiver, mFilter);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -106,9 +157,16 @@ public class MainActivity extends Activity {
             startSettingActivity();
             return true;
         } else if(id == R.id.action_donate) {
-            //进入捐助页面
+            //进入推荐按钮
+            Utils.getInstance(this).shareApp();
+
         } else if (id == R.id.action_about) {
             //进入项目介绍页面
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+
+        } else if (id == R.id.action_record) {
+            btnClicked();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -117,9 +175,18 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            MediaProjection projection = mProjectionManager.getMediaProjection(resultCode, data);
-            startRecording(projection);
+            Intent intent = new Intent(this, RecordService.class);
+            intent.putExtra(RESULT, resultCode);
+            intent.putExtra(DATA, data);
+            startService(intent);
+            moveTaskToBack(true);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initVideoList();
     }
 
     private void initAdvertise() {
@@ -131,7 +198,7 @@ public class MainActivity extends Activity {
 		 * 未发布前请设置testad为true，
 		 * 上线的版本请确保设置为false或者去掉这行调用
 		 */
-        adr.setTestAd(true);
+//        adr.setTestAd(true);
 		/* 设置广告刷新时间，为30~120之间的数字，单位为s*/
         adr.setRefresh(31);
 		/* 设置空广告和首次收到广告数据回调
@@ -200,7 +267,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
     /**
      * 停止录像
      */
@@ -221,20 +287,6 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Actually start recording
-     */
-    public void startRecording(MediaProjection projection) {
-        //读取用户设置信息
-        int width = ParameterManager.getInstance(this).getVideoWidth();
-        int height = ParameterManager.getInstance(this).getVideoHeight();
-        boolean needAudio = ParameterManager.getInstance(this).needAudio();
-        mRecordThread = new RecordThread(width, height, mMetrics, projection,
-                getResources().getString(R.string.save_dir), needAudio);
-        mIsRecording = true;
-        mRecordThread.start();
-    }
-
-    /**
      * 启动设置界面
      */
     private void startSettingActivity() {
@@ -246,64 +298,7 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         Log.i("duanjin", "activity get destroyed");
         super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 
-    private ActionMode.Callback mActionCallback = new ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.menu_context, menu);
-            getWindow().setStatusBarColor(getResources().getColor(R.color.context_color_dark));
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.share:
-                    Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                    String selectedFile = mAdapter.getSelectedFileName();
-                    if (TextUtils.isEmpty(selectedFile))
-                        break;
-                    Uri screenshotUri = Uri.fromFile(new File(selectedFile));
-                    sharingIntent.setType("video/*");
-                    sharingIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
-                    MainActivity.this.startActivity(Intent.createChooser(sharingIntent, "分享到："));
-                    break;
-                case R.id.delete:
-                    String fileName = mAdapter.getSelectedFileName();
-                    if (!TextUtils.isEmpty(fileName)) {
-                        File file = new File(fileName);
-                        file.delete();
-                        mActionMode.finish();
-                        initVideoList();
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            if (null != mSelectedView) {
-                mSelectedView.setSelected(false);
-                mSelectedView = null;
-                mAdapter.setSelectedPos(-1, null);
-            }
-            mActionMode = null;
-            getWindow().setStatusBarColor(getResources().getColor(R.color.color_primary_dark));
-        }
-    };
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
 }

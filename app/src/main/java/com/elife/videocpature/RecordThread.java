@@ -44,42 +44,53 @@ public class RecordThread extends Thread{
 
     //audio needed variables
     private boolean mNeedAudio = false;
+    private boolean mIsLandScapeMode = false;
     private MediaCodec mAudioEncoder;
     public ArrayBlockingQueue<byte[]> audioBuffer = new ArrayBlockingQueue<byte[]>(50);
     private MediaCodec.BufferInfo mAudioBufferInfo = new MediaCodec.BufferInfo();
     private int mMuxerTrackNumber = 0;
     private int mAudioTrackIndex;
     private AudioRecordThread mAudioThread;
-    private long mAudioBytes = 0;
     private long mAudioStartTime = 0;
-    private long timeStamp = 0;
     private long mEncodeStartTime;
 
+
     public RecordThread(DisplayMetrics metrics, MediaProjection projection, String dir) {
-        init(metrics.widthPixels, metrics.heightPixels, metrics, projection, dir, false);
+        init(metrics.widthPixels, metrics.heightPixels, metrics, projection, dir, false, false);
 
     }
 
     public RecordThread(int iWidth, int iHeight, DisplayMetrics metrics, MediaProjection projection,
-                        String dir, boolean needAudio) {
-        init(iWidth, iHeight, metrics, projection, dir, needAudio);
+                        String dir, boolean needAudio, boolean landScapeModeOn) {
+        init(iWidth, iHeight, metrics, projection, dir, needAudio, landScapeModeOn);
         android.os.Process.setThreadPriority(-19);
 
     }
 
     private void init(int iWidth, int iHeight, DisplayMetrics metrics, MediaProjection projection,
-                      String dir, boolean needAudio) {
-        width = iWidth;
-        height = iHeight;
-        if (width ==0 || height == 0) {
-            width = metrics.widthPixels;
-            height = metrics.heightPixels;
-        }
+                      String dir, boolean needAudio, boolean landScapeModeOn) {
+        mIsLandScapeMode = landScapeModeOn;
+        if (mIsLandScapeMode) {
+            width = iHeight;
+            height = iWidth;
+            if (width ==0 || height == 0) {
+                width = metrics.heightPixels;
+                height = metrics.widthPixels;
+            }
 
+        } else {
+            width = iWidth;
+            height = iHeight;
+            if (width ==0 || height == 0) {
+                width = metrics.widthPixels;
+                height = metrics.heightPixels;
+            }
+        }
         density = metrics.densityDpi;
         mProjection = projection;
         mDesDir = dir;
         mNeedAudio = needAudio;
+
     }
 
     private void setupEncoder() {
@@ -123,7 +134,7 @@ public class RecordThread extends Thread{
         Date date = c.getTime();
         //record-2014-12-22-14-23
         String fileName = String.format("record-%s-%s-%s-%s-%s-%s", c.get(Calendar.YEAR),
-                c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
+                c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH),
                 c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
         String pathName = Environment.getExternalStorageDirectory().getPath() + "/" +
                 mDesDir;

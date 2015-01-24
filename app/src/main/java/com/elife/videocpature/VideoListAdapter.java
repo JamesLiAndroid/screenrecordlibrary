@@ -1,5 +1,6 @@
 package com.elife.videocpature;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,7 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+
+import com.eversince.screenrecord.R;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -30,7 +35,8 @@ public class VideoListAdapter extends BaseAdapter {
     private String dirPath;
     private Context mContext;
     Calendar c = Calendar.getInstance();
-    private int mSelectedPos = -1;
+    private ArrayList<Integer> mSelectedPos = new ArrayList<>();
+    public boolean isInSelectionMode = false;
 
 
     public VideoListAdapter(Context context, ArrayList<String> files, String dir) {
@@ -73,17 +79,31 @@ public class VideoListAdapter extends BaseAdapter {
             holder.resolution = (TextView) convertView.findViewById(R.id.resolution);
             holder.size = (TextView) convertView.findViewById(R.id.size);
             holder.create_time = (TextView) convertView.findViewById(R.id.time);
+            holder.playView = convertView.findViewById(R.id.play_icon);
+            holder.selectView = convertView.findViewById(R.id.select_icon);
+            holder.thumbContainer = (RelativeLayout)convertView.findViewById(R.id.thumb_container);
+            LayoutTransition layoutTransition = new LayoutTransition();
+            layoutTransition.setStartDelay(LayoutTransition.CHANGE_DISAPPEARING, 0);
+            holder.thumbContainer.setLayoutTransition(new LayoutTransition());
+
 
             convertView.setTag(holder);
         }
 
         final Holder holder = (Holder) convertView.getTag();
+        if (mSelectedPos.contains(position)) {
 
+            holder.selectView.setVisibility(View.VISIBLE);
+            holder.playView.setVisibility(View.GONE);
+        } else {
+            holder.selectView.setVisibility(View.GONE);
+            holder.playView.setVisibility(View.VISIBLE);
+        }
         File file = new File(dirPath + mFileNames.get(position));
         if (file.exists()) {
             c.setTimeInMillis(file.lastModified());
-            String dateStr = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1)
-                    + "-" + c.get(Calendar.DAY_OF_MONTH);
+            String dateStr = String.format("%s-%d-%d",c.get(Calendar.YEAR),
+                    (c.get(Calendar.MONTH) + 1),c.get(Calendar.DAY_OF_MONTH));
             holder.create_time.setText(dateStr);
             holder.size.setText(String.format("%.2f", file.length() / 1000000.0) + "M");
 
@@ -108,26 +128,52 @@ public class VideoListAdapter extends BaseAdapter {
        return convertView;
     }
 
-    public void setSelectedPos(int pos, View view) {
-        mSelectedPos = pos;
-        showViewAsSelected(view);
-    }
-
-    private void showViewAsSelected(View view) {
-//        if (view.getTag() != null) {
-//            if (view.getTag() instanceof Holder) {
-//                Holder holder =(Holder) view.getTag();
-//                holder.coverView.setVisibility(View.VISIBLE);
-//            }
-//        }
-    }
-
-    public String getSelectedFileName() {
-        if (null != mFileNames && mSelectedPos < mFileNames.size()) {
-            return dirPath + mFileNames.get(mSelectedPos);
+    public void addSelectedPos(int pos) {
+        if (null != mSelectedPos) {
+            mSelectedPos.add(pos);
+        }else {
+            mSelectedPos = new ArrayList<>();
+            mSelectedPos.add(pos);
         }
 
-        return "";
+    }
+
+    public void removeSelectedPos(int pos) {
+        if (null != mSelectedPos) {
+            int index = mSelectedPos.indexOf(pos);
+            if (index != -1) {
+                mSelectedPos.remove(index);
+            }
+        }
+    }
+
+    public void deSelectAll() {
+        if (null != mSelectedPos) {
+            mSelectedPos.clear();
+        }
+    }
+
+    public int getSelectedCount() {
+        if (null != mSelectedPos) {
+            return mSelectedPos.size();
+        }
+        return 0;
+    }
+
+
+    public ArrayList<String> getSelectedFileName() {
+        ArrayList<String> selectedFiles = new ArrayList<>();
+
+        if (null != mFileNames && null != mSelectedPos) {
+            for (int i = 0; i < mSelectedPos.size(); ++i) {
+                if (mSelectedPos.get(i) < mFileNames.size()) {
+                    String name = dirPath + mFileNames.get(mSelectedPos.get(i));
+                    selectedFiles.add(name);
+                }
+            }
+            return selectedFiles;
+        }
+        return null;
     }
 
     private static class Holder {
@@ -135,6 +181,8 @@ public class VideoListAdapter extends BaseAdapter {
         public TextView resolution;
         public TextView size;
         public TextView create_time;
-        public View coverView;
+        public View playView;
+        public View selectView;
+        public RelativeLayout thumbContainer;
     }
 }

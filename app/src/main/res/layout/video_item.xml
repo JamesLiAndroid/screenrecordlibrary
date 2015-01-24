@@ -25,10 +25,18 @@
             android:layout_centerInParent="true"
             android:scaleType="centerCrop"/>
         <ImageView
+            android:id="@+id/play_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:background="@drawable/icon_play"/>
+        <ImageView
+            android:id="@+id/select_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/red_correct_btn"
+            android:visibility="gone"/>
         </RelativeLayout>
 
     <RelativeLayout

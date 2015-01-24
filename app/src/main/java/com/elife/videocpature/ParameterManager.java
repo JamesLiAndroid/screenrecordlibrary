@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.eversince.screenrecord.R;
+
+
 /**
  * Created by duanjin on 1/1/15.
  */
@@ -64,5 +67,13 @@ public class ParameterManager {
             }
         }
         return 0;
+    }
+
+    public boolean isLandScapeModeOn() {
+        if (null != mContext) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+           return sp.getBoolean(mContext.getResources().getString(R.string.record_mode_key), false);
+        }
+        return false;
     }
 }

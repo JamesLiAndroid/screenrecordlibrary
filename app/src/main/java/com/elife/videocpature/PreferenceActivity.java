@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.eversince.screenrecord.R;
+
+
 /**
  * Created by duanjin on 1/1/15.
  */

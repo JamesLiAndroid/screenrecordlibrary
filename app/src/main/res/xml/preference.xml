@@ -4,6 +4,10 @@
         android:title="@string/record_audio"
         android:key="@string/record_audio_key"
         android:defaultValue="false"/>
+    <CheckBoxPreference
+        android:title="@string/landscape_mode"
+        android:key="@string/record_mode_key"
+        android:defaultValue="false"/>
     <ListPreference
         android:title="@string/video_dimension"
         android:key="@string/video_dimension_key"

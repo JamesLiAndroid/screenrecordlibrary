@@ -5,6 +5,9 @@ import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.util.DisplayMetrics;
 
+import com.eversince.screenrecord.R;
+
+
 /**
  * Created by duanjin on 1/1/15.
  */
@@ -23,7 +26,7 @@ public class SettingFragment extends PreferenceFragment{
         super.onActivityCreated(savedInstanceState);
         if (videoSize != null) {
             DisplayMetrics metrics = new DisplayMetrics();
-            getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            getActivity().getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
             int width = metrics.widthPixels;
             int height = metrics.heightPixels;
             String[] sizeEntries = new String[3];
