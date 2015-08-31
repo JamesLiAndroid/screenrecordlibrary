@@ -15,9 +15,11 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -62,7 +64,9 @@ public class MainActivity extends Activity {
         mProjectionManager = (MediaProjectionManager)(getSystemService(Context.MEDIA_PROJECTION_SERVICE));
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
 
+
         mList = (ListView) findViewById(R.id.video_list);
+
         mList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         mList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
@@ -249,6 +253,10 @@ public class MainActivity extends Activity {
         if (mAdapter == null) {
             mAdapter = new VideoListAdapter(this, fileNames, dir + "/");
             mList.setAdapter(mAdapter);
+            View headView = LayoutInflater.from(this).inflate(R.layout.view_header, null);
+            View footView = LayoutInflater.from(this).inflate(R.layout.view_header, null);
+            mList.addHeaderView(headView);
+            mList.addFooterView(footView);
         } else {
             mAdapter.setData(fileNames);
             mAdapter.notifyDataSetChanged();
