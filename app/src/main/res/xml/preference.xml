@@ -12,5 +12,10 @@
         android:title="@string/video_dimension"
         android:key="@string/video_dimension_key"
         android:summary="@string/video_dimension_summary"/>
+    <ListPreference
+        android:title="@string/video_quality"
+        android:key="@string/video_quality_key"
+        android:summary="@string/video_quality_chose"
+        />
 
 </PreferenceScreen>

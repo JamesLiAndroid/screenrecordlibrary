@@ -36,7 +36,7 @@ public class RecordThread extends Thread{
     private Surface mInputSurface;
     private final static int KEY_FRAME_INTERVAL = 10;
     private final static int FRAME_RATE = 30;
-    private final static int BIT_RATE = 6000000;
+    private  static int BIT_RATE = 600000;
     private String mDesDir;
     private VirtualDisplay mVirtualDisplay;
     private MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
@@ -56,19 +56,19 @@ public class RecordThread extends Thread{
 
 
     public RecordThread(DisplayMetrics metrics, MediaProjection projection, String dir) {
-        init(metrics.widthPixels, metrics.heightPixels, metrics, projection, dir, false, false);
+        init(metrics.widthPixels, metrics.heightPixels, metrics, projection, dir, false, false, 3000000);
 
     }
 
     public RecordThread(int iWidth, int iHeight, DisplayMetrics metrics, MediaProjection projection,
-                        String dir, boolean needAudio, boolean landScapeModeOn) {
-        init(iWidth, iHeight, metrics, projection, dir, needAudio, landScapeModeOn);
+                        String dir, boolean needAudio, boolean landScapeModeOn, int videoQuality) {
+        init(iWidth, iHeight, metrics, projection, dir, needAudio, landScapeModeOn, videoQuality);
         android.os.Process.setThreadPriority(-19);
 
     }
 
     private void init(int iWidth, int iHeight, DisplayMetrics metrics, MediaProjection projection,
-                      String dir, boolean needAudio, boolean landScapeModeOn) {
+                      String dir, boolean needAudio, boolean landScapeModeOn, int videoQuality) {
         mIsLandScapeMode = landScapeModeOn;
         if (mIsLandScapeMode) {
             width = iHeight;
@@ -90,6 +90,7 @@ public class RecordThread extends Thread{
         mProjection = projection;
         mDesDir = dir;
         mNeedAudio = needAudio;
+        BIT_RATE = videoQuality;
 
     }
 

@@ -39,10 +39,13 @@
         <activity android:name="com.elife.videocpature.AboutActivity"
             android:label="关于"
             android:screenOrientation="portrait"/>
+        <activity android:name="com.elife.videocpature.WebServiceAct"
+            android:screenOrientation="portrait"/>
 
         <service android:name="com.elife.videocpature.RecordService">
 
         </service>
+        <service android:name="com.elife.webserver.HTTPService"/>
 
     </application>
 

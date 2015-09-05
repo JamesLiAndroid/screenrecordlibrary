@@ -14,11 +14,13 @@ import com.eversince.screenrecord.R;
 public class SettingFragment extends PreferenceFragment{
 
     ListPreference videoSize;
+    ListPreference videoQuality;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference);
         videoSize = (ListPreference)findPreference(getResources().getString(R.string.video_dimension_key));
+        videoQuality = (ListPreference)findPreference(getResources().getString(R.string.video_quality_key));
     }
 
     @Override
@@ -41,6 +43,17 @@ public class SettingFragment extends PreferenceFragment{
                 videoSize.setValue(sizeEntries[0]);
             }
             videoSize.setDefaultValue(sizeEntries[0]);
+        }
+        if (videoQuality != null) {
+            String[] qualityEntries = {getResources().getString(R.string.quality_high),
+                    getResources().getString(R.string.quality_medium),
+                    getResources().getString(R.string.quality_low)};
+            videoQuality.setEntries(qualityEntries);
+            videoQuality.setEntryValues(qualityEntries);
+            if (ParameterManager.getInstance(getActivity()).getVideoQuality() == ParameterManager.QUALITY_MEDIUM) {
+                videoQuality.setValue(qualityEntries[1]);
+            }
+            videoQuality.setDefaultValue(qualityEntries[1]);
         }
     }
 }

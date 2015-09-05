@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.eversince.screenrecord.R;
 import com.qq.e.ads.AdListener;
@@ -54,6 +55,7 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equalsIgnoreCase(ACTION))
             MainActivity.this.initVideoList();
+            MainActivity.this.mIsRecording = false;
         }
     };
 
@@ -71,12 +73,15 @@ public class MainActivity extends Activity {
         mList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                if (position <= 0) {
+                    return;
+                }
                 int selectedCount = mList.getCheckedItemCount();
                 mode.setTitle(selectedCount+"");
                 if (checked) {
-                    mAdapter.addSelectedPos(position);
+                    mAdapter.addSelectedPos(position - 1);
                 } else  {
-                    mAdapter.removeSelectedPos(position);
+                    mAdapter.removeSelectedPos(position - 1);
                 }
                 mAdapter.notifyDataSetChanged();
             }
@@ -171,6 +176,9 @@ public class MainActivity extends Activity {
 
         } else if (id == R.id.action_record) {
             btnClicked();
+        } else if (id == R.id.action_manage_file) {
+            startManageFileAct();
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -179,6 +187,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
+            mIsRecording = true;
             Intent intent = new Intent(this, RecordService.class);
             intent.putExtra(RESULT, resultCode);
             intent.putExtra(DATA, data);
@@ -262,13 +271,13 @@ public class MainActivity extends Activity {
             mAdapter.notifyDataSetChanged();
         }
 
-
     }
 
     private void btnClicked() {
         //stop record
         if (mIsRecording) {
-            stopRecording();
+            Toast.makeText(this, R.string.record_already_start, Toast.LENGTH_SHORT).show();
+            return;
         } else {
             //start recording
             startRecordingIntent();
@@ -302,11 +311,25 @@ public class MainActivity extends Activity {
         startActivity(it);
     }
 
+    private void startManageFileAct() {
+        Intent it = new Intent(this, WebServiceAct.class);
+        startActivity(it);
+    }
     @Override
     protected void onDestroy() {
         Log.i("duanjin", "activity get destroyed");
         super.onDestroy();
         unregisterReceiver(mReceiver);
     }
+
+    public boolean isPasswordRequired() {
+        return false;
+    }
+
+    public String getPassword() {
+        return "";
+    }
+
+
 
 }

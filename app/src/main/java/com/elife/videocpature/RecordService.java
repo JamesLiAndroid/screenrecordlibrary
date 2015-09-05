@@ -59,8 +59,9 @@ public class RecordService extends Service{
                 int height = ParameterManager.getInstance(this).getVideoHeight();
                 boolean needAudio = ParameterManager.getInstance(this).needAudio();
                 boolean isLandScapeMode = ParameterManager.getInstance(this).isLandScapeModeOn();
+                int quality = ParameterManager.getInstance(this).getVideoQuality();
                 mRecordThread = new RecordThread(width, height, mMetrics, mp,
-                        getResources().getString(R.string.save_dir), needAudio, isLandScapeMode);
+                        getResources().getString(R.string.save_dir), needAudio, isLandScapeMode, quality);
                 mIsRecording = true;
 
                 mToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);

@@ -2,10 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" android:showAsAction="never" />
-    <item android:id="@+id/action_donate" android:title="@string/action_donate"
+    <item android:id="@+id/action_manage_file" android:title="@string/action_manage_file"
         android:orderInCategory="101" android:showAsAction="never"/>
-    <item android:id="@+id/action_about" android:title="@string/action_about"
+    <item android:id="@+id/action_donate" android:title="@string/action_donate"
         android:orderInCategory="102" android:showAsAction="never"/>
+    <item android:id="@+id/action_about" android:title="@string/action_about"
+        android:orderInCategory="103" android:showAsAction="never"/>
     <item android:id="@+id/action_record" android:icon="@drawable/icon_red72" android:showAsAction="always"/>
 
 </menu>
