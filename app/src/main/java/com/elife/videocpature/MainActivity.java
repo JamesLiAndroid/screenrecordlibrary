@@ -33,6 +33,8 @@ import com.qq.e.ads.AdView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 
 public class MainActivity extends Activity {
@@ -267,6 +269,7 @@ public class MainActivity extends Activity {
             mList.addHeaderView(headView);
             mList.addFooterView(footView);
         } else {
+            Collections.reverse(fileNames);
             mAdapter.setData(fileNames);
             mAdapter.notifyDataSetChanged();
         }

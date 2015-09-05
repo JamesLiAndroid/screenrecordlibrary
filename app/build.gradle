@@ -19,7 +19,6 @@ android {
             keyPassword "c!d@j#@126.com"
             keyAlias "djchen"
         }
-
     }
 
     compileOptions {
