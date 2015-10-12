@@ -25,15 +25,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.baidu.appx.BDBannerAd;
 import com.eversince.screenrecord.R;
-import com.qq.e.ads.AdListener;
-import com.qq.e.ads.AdRequest;
-import com.qq.e.ads.AdSize;
-import com.qq.e.ads.AdView;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 
@@ -64,6 +61,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MobclickAgent.setDebugMode(true);
         setContentView(R.layout.activity_main);
         mProjectionManager = (MediaProjectionManager)(getSystemService(Context.MEDIA_PROJECTION_SERVICE));
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
@@ -152,6 +150,7 @@ public class MainActivity extends Activity {
         initAdvertise();
         mFilter = new IntentFilter(ACTION);
         registerReceiver(mReceiver, mFilter);
+        getDeviceInfo(this);
     }
 
 
@@ -202,50 +201,46 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         initVideoList();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 
     private void initAdvertise() {
-        AdView adv = new AdView(this, AdSize.BANNER, "1103948760","4040605069270554");
-        mBannerContainer.addView(adv);
-		/* 广告请求数据，可以设置广告轮播时间，默认为30s  */
-        AdRequest adr = new AdRequest();
-		/* 这个接口的作用是设置广告的测试模式，该模式下点击不扣费
-		 * 未发布前请设置testad为true，
-		 * 上线的版本请确保设置为false或者去掉这行调用
-		 */
-//        adr.setTestAd(true);
-		/* 设置广告刷新时间，为30~120之间的数字，单位为s*/
-        adr.setRefresh(31);
-		/* 设置空广告和首次收到广告数据回调
-		 * 调用fetchAd方法后会发起广告请求，广告轮播时不会产生回调
-		 */
-        adv.setAdListener(new AdListener() {
+        BDBannerAd bannerAdView = new BDBannerAd(this,"2A42aA2f3OcRTtsGgvPMrxzh", "sbwSIlPeYlsuVvXpLbWhOZuL" );
+        bannerAdView.setAdListener(new BDBannerAd.BannerAdListener() {
             @Override
-            public void onBannerClosed() {
+            public void onAdvertisementDataDidLoadSuccess() {
 
             }
 
             @Override
-            public void onAdClicked() {
+            public void onAdvertisementDataDidLoadFailure() {
 
             }
 
             @Override
-            public void onNoAd() {
-                Log.i("no ad cb:","no");
-            }
-            @Override
-            public void onAdReceiv() {
-                Log.i("ad recv cb:","revc");
+            public void onAdvertisementViewDidShow() {
+
             }
 
             @Override
-            public void onAdExposure() {
+            public void onAdvertisementViewDidClick() {
+
+            }
+
+            @Override
+            public void onAdvertisementViewWillStartNewIntent() {
 
             }
         });
-		/* 发起广告请求，收到广告数据后会展示数据	 */
-        adv.fetchAd(adr);
+        mBannerContainer.addView(bannerAdView);
+
+
     }
     private void initVideoList() {
         String dir = Environment.getExternalStorageDirectory().getPath() + "/" +
@@ -333,6 +328,38 @@ public class MainActivity extends Activity {
         return "";
     }
 
+
+
+    public static String getDeviceInfo(Context context) {
+        try{
+            org.json.JSONObject json = new org.json.JSONObject();
+            android.telephony.TelephonyManager tm = (android.telephony.TelephonyManager) context
+                    .getSystemService(Context.TELEPHONY_SERVICE);
+
+            String device_id = tm.getDeviceId();
+
+            android.net.wifi.WifiManager wifi = (android.net.wifi.WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+            String mac = wifi.getConnectionInfo().getMacAddress();
+            json.put("mac", mac);
+
+            if( TextUtils.isEmpty(device_id) ){
+                device_id = mac;
+            }
+
+            if( TextUtils.isEmpty(device_id) ){
+                device_id = android.provider.Settings.Secure.getString(context.getContentResolver(),android.provider.Settings.Secure.ANDROID_ID);
+            }
+
+            json.put("device_id", device_id);
+            Log.i("DJDJDJ", json.toString());
+
+            return json.toString();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
 }
