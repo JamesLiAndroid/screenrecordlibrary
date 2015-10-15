@@ -1,6 +1,7 @@
 package com.elife.videocpature;
 
 import android.animation.LayoutTransition;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.eversince.screenrecord.R;
@@ -118,10 +120,15 @@ public class VideoListAdapter extends BaseAdapter {
         holder.thumbImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent viewIntent = new Intent(Intent.ACTION_VIEW);
-                Uri videoUri = Uri.parse(dirPath + mFileNames.get(position));
-                viewIntent.setDataAndType(videoUri, "video/*");
-                mContext.startActivity(viewIntent);
+                try
+                {
+                    Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+                    Uri videoUri = Uri.parse(dirPath + mFileNames.get(position));
+                    viewIntent.setDataAndType(videoUri, "video/mp4");
+                    mContext.startActivity(viewIntent);
+                }catch (ActivityNotFoundException ae) {
+                    Toast.makeText(mContext, "请安装视频播放器", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
