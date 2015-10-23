@@ -26,7 +26,12 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.baidu.appx.BDBannerAd;
+import com.eversince.screenrecord.BuildConfig;
 import com.eversince.screenrecord.R;
+import com.qq.e.ads.AdListener;
+import com.qq.e.ads.AdRequest;
+import com.qq.e.ads.AdSize;
+import com.qq.e.ads.AdView;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -147,7 +152,7 @@ public class MainActivity extends Activity {
         });
         initVideoList();
         mBannerContainer = (RelativeLayout) findViewById(R.id.banner_container);
-//        initAdvertise();
+        initAdvertise();
         mFilter = new IntentFilter(ACTION);
         registerReceiver(mReceiver, mFilter);
         getDeviceInfo(this);
@@ -210,50 +215,50 @@ public class MainActivity extends Activity {
         MobclickAgent.onPause(this);
     }
 
-//    private void initTecentAdvertise() {
-//        AdView adv = new AdView(this, AdSize.BANNER, "1103948760", "4040605069270554");
-//        mBannerContainer.addView(adv);
-//        /* 广告请求数据，可以设置广告轮播时间，默认为30s  */
-//        AdRequest adr = new AdRequest();
-//		/* 这个接口的作用是设置广告的测试模式，该模式下点击不扣费
-//		 * 未发布前请设置testad为true，
-//		 * 上线的版本请确保设置为false或者去掉这行调用
-//		 */
-////        adr.setTestAd(true);
-//		/* 设置广告刷新时间，为30~120之间的数字，单位为s*/
-//        adr.setRefresh(31);
-//		/* 设置空广告和首次收到广告数据回调
-//		 * 调用fetchAd方法后会发起广告请求，广告轮播时不会产生回调
-//		 */
-//        adv.setAdListener(new AdListener() {
-//            @Override
-//            public void onBannerClosed() {
-//
-//            }
-//
-//            @Override
-//            public void onAdClicked() {
-//
-//            }
-//
-//            @Override
-//            public void onNoAd() {
-//                Log.i("no ad cb:", "no");
-//            }
-//
-//            @Override
-//            public void onAdReceiv() {
-//                Log.i("ad recv cb:", "revc");
-//            }
-//
-//            @Override
-//            public void onAdExposure() {
-//
-//            }
-//        });
-//		/* 发起广告请求，收到广告数据后会展示数据	 */
-//        adv.fetchAd(adr);
-//    }
+    private void initTecentAdvertise() {
+        AdView adv = new AdView(this, AdSize.BANNER, "1103948760", "4040605069270554");
+        mBannerContainer.addView(adv);
+        /* 广告请求数据，可以设置广告轮播时间，默认为30s  */
+        AdRequest adr = new AdRequest();
+		/* 这个接口的作用是设置广告的测试模式，该模式下点击不扣费
+		 * 未发布前请设置testad为true，
+		 * 上线的版本请确保设置为false或者去掉这行调用
+		 */
+//        adr.setTestAd(true);
+		/* 设置广告刷新时间，为30~120之间的数字，单位为s*/
+        adr.setRefresh(31);
+		/* 设置空广告和首次收到广告数据回调
+		 * 调用fetchAd方法后会发起广告请求，广告轮播时不会产生回调
+		 */
+        adv.setAdListener(new AdListener() {
+            @Override
+            public void onBannerClosed() {
+
+            }
+
+            @Override
+            public void onAdClicked() {
+
+            }
+
+            @Override
+            public void onNoAd() {
+                Log.i("no ad cb:", "no");
+            }
+
+            @Override
+            public void onAdReceiv() {
+                Log.i("ad recv cb:", "revc");
+            }
+
+            @Override
+            public void onAdExposure() {
+
+            }
+        });
+		/* 发起广告请求，收到广告数据后会展示数据	 */
+        adv.fetchAd(adr);
+    }
 
 
     private void initBaiduAdertise() {
@@ -287,6 +292,14 @@ public class MainActivity extends Activity {
         mBannerContainer.addView(bannerAdView);
     }
 
+    private void initAdvertise() {
+//        if (BuildConfig.FLAVOR.equals("baidu")) {
+//            initBaiduAdertise();
+//        } else if (BuildConfig.FLAVOR.equals("qq")) {
+//            initTecentAdvertise();
+//        }
+        initTecentAdvertise();
+    }
 
     private void initVideoList() {
         String dir = Environment.getExternalStorageDirectory().getPath() + "/" +
@@ -314,7 +327,6 @@ public class MainActivity extends Activity {
             mAdapter.setData(fileNames);
             mAdapter.notifyDataSetChanged();
         }
-
     }
 
     private void btnClicked() {

@@ -12,6 +12,15 @@ android {
         versionName "1.1.0.2"
     }
 
+    productFlavors{
+        defaultConfig{
+        }
+        baidu{
+        }
+        qq{
+        }
+    }
+
     signingConfigs {
         myConfigs {
             storeFile file("mykey.jks")
