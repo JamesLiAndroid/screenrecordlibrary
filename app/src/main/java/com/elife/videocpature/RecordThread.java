@@ -18,7 +18,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * Created by duanjin on 12/28/14.
  */

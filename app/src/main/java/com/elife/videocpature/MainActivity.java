@@ -25,15 +25,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.baidu.appx.BDBannerAd;
 import com.eversince.screenrecord.R;
-import com.qq.e.ads.AdListener;
-import com.qq.e.ads.AdRequest;
-import com.qq.e.ads.AdSize;
-import com.qq.e.ads.AdView;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 
@@ -64,6 +61,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MobclickAgent.setDebugMode(true);
         setContentView(R.layout.activity_main);
         mProjectionManager = (MediaProjectionManager)(getSystemService(Context.MEDIA_PROJECTION_SERVICE));
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
@@ -152,6 +150,7 @@ public class MainActivity extends Activity {
         initAdvertise();
         mFilter = new IntentFilter(ACTION);
         registerReceiver(mReceiver, mFilter);
+        getDeviceInfo(this);
     }
 
 
@@ -202,8 +201,16 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         initVideoList();
+        MobclickAgent.onResume(this);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+
+<<<<<<< HEAD
     private void initTecentAdvertise() {
         AdView adv = new AdView(this, AdSize.BANNER, "1103948760","4040605069270554");
         mBannerContainer.addView(adv);
@@ -220,37 +227,50 @@ public class MainActivity extends Activity {
 		 * 调用fetchAd方法后会发起广告请求，广告轮播时不会产生回调
 		 */
         adv.setAdListener(new AdListener() {
+=======
+    private void initAdvertise() {
+        BDBannerAd bannerAdView = new BDBannerAd(this,"2A42aA2f3OcRTtsGgvPMrxzh", "sbwSIlPeYlsuVvXpLbWhOZuL" );
+        bannerAdView.setAdListener(new BDBannerAd.BannerAdListener() {
+>>>>>>> baidu
             @Override
-            public void onBannerClosed() {
+            public void onAdvertisementDataDidLoadSuccess() {
 
             }
 
             @Override
-            public void onAdClicked() {
+            public void onAdvertisementDataDidLoadFailure() {
 
             }
 
             @Override
-            public void onNoAd() {
-                Log.i("no ad cb:","no");
-            }
-            @Override
-            public void onAdReceiv() {
-                Log.i("ad recv cb:","revc");
+            public void onAdvertisementViewDidShow() {
+
             }
 
             @Override
-            public void onAdExposure() {
+            public void onAdvertisementViewDidClick() {
+
+            }
+
+            @Override
+            public void onAdvertisementViewWillStartNewIntent() {
 
             }
         });
+<<<<<<< HEAD
 		/* 发起广告请求，收到广告数据后会展示数据	 */
         adv.fetchAd(adr);
 
     }
+
     private void initAdvertise() {
+=======
+        mBannerContainer.addView(bannerAdView);
+
+>>>>>>> baidu
 
     }
+
     private void initVideoList() {
         String dir = Environment.getExternalStorageDirectory().getPath() + "/" +
                 getResources().getString(R.string.save_dir);
@@ -337,6 +357,38 @@ public class MainActivity extends Activity {
         return "";
     }
 
+
+
+    public static String getDeviceInfo(Context context) {
+        try{
+            org.json.JSONObject json = new org.json.JSONObject();
+            android.telephony.TelephonyManager tm = (android.telephony.TelephonyManager) context
+                    .getSystemService(Context.TELEPHONY_SERVICE);
+
+            String device_id = tm.getDeviceId();
+
+            android.net.wifi.WifiManager wifi = (android.net.wifi.WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+            String mac = wifi.getConnectionInfo().getMacAddress();
+            json.put("mac", mac);
+
+            if( TextUtils.isEmpty(device_id) ){
+                device_id = mac;
+            }
+
+            if( TextUtils.isEmpty(device_id) ){
+                device_id = android.provider.Settings.Secure.getString(context.getContentResolver(),android.provider.Settings.Secure.ANDROID_ID);
+            }
+
+            json.put("device_id", device_id);
+            Log.i("DJDJDJ", json.toString());
+
+            return json.toString();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
 }
