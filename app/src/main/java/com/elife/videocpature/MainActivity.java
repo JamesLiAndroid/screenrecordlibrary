@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
     private MediaProjectionManager mProjectionManager;
     private static final int REQUEST_CODE = 0x10001;
     private boolean mIsRecording = false;
-    private DisplayMetrics mMetrics  = new DisplayMetrics();
+    private DisplayMetrics mMetrics = new DisplayMetrics();
     private RecordThread mRecordThread;
 
     private ListView mList;
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equalsIgnoreCase(ACTION))
-            MainActivity.this.initVideoList();
+                MainActivity.this.initVideoList();
             MainActivity.this.mIsRecording = false;
         }
     };
@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         MobclickAgent.setDebugMode(true);
         setContentView(R.layout.activity_main);
-        mProjectionManager = (MediaProjectionManager)(getSystemService(Context.MEDIA_PROJECTION_SERVICE));
+        mProjectionManager = (MediaProjectionManager) (getSystemService(Context.MEDIA_PROJECTION_SERVICE));
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
 
 
@@ -77,10 +77,10 @@ public class MainActivity extends Activity {
                     return;
                 }
                 int selectedCount = mList.getCheckedItemCount();
-                mode.setTitle(selectedCount+"");
+                mode.setTitle(selectedCount + "");
                 if (checked) {
                     mAdapter.addSelectedPos(position - 1);
-                } else  {
+                } else {
                     mAdapter.removeSelectedPos(position - 1);
                 }
                 mAdapter.notifyDataSetChanged();
@@ -147,7 +147,7 @@ public class MainActivity extends Activity {
         });
         initVideoList();
         mBannerContainer = (RelativeLayout) findViewById(R.id.banner_container);
-        initAdvertise();
+//        initAdvertise();
         mFilter = new IntentFilter(ACTION);
         registerReceiver(mReceiver, mFilter);
         getDeviceInfo(this);
@@ -166,7 +166,7 @@ public class MainActivity extends Activity {
         if (id == R.id.action_settings) {
             startSettingActivity();
             return true;
-        } else if(id == R.id.action_donate) {
+        } else if (id == R.id.action_donate) {
             //进入推荐按钮
             Utils.getInstance(this).shareApp();
 
@@ -210,28 +210,55 @@ public class MainActivity extends Activity {
         MobclickAgent.onPause(this);
     }
 
-<<<<<<< HEAD
-    private void initTecentAdvertise() {
-        AdView adv = new AdView(this, AdSize.BANNER, "1103948760","4040605069270554");
-        mBannerContainer.addView(adv);
-		/* 广告请求数据，可以设置广告轮播时间，默认为30s  */
-        AdRequest adr = new AdRequest();
-		/* 这个接口的作用是设置广告的测试模式，该模式下点击不扣费
-		 * 未发布前请设置testad为true，
-		 * 上线的版本请确保设置为false或者去掉这行调用
-		 */
-//        adr.setTestAd(true);
-		/* 设置广告刷新时间，为30~120之间的数字，单位为s*/
-        adr.setRefresh(31);
-		/* 设置空广告和首次收到广告数据回调
-		 * 调用fetchAd方法后会发起广告请求，广告轮播时不会产生回调
-		 */
-        adv.setAdListener(new AdListener() {
-=======
-    private void initAdvertise() {
-        BDBannerAd bannerAdView = new BDBannerAd(this,"2A42aA2f3OcRTtsGgvPMrxzh", "sbwSIlPeYlsuVvXpLbWhOZuL" );
+//    private void initTecentAdvertise() {
+//        AdView adv = new AdView(this, AdSize.BANNER, "1103948760", "4040605069270554");
+//        mBannerContainer.addView(adv);
+//        /* 广告请求数据，可以设置广告轮播时间，默认为30s  */
+//        AdRequest adr = new AdRequest();
+//		/* 这个接口的作用是设置广告的测试模式，该模式下点击不扣费
+//		 * 未发布前请设置testad为true，
+//		 * 上线的版本请确保设置为false或者去掉这行调用
+//		 */
+////        adr.setTestAd(true);
+//		/* 设置广告刷新时间，为30~120之间的数字，单位为s*/
+//        adr.setRefresh(31);
+//		/* 设置空广告和首次收到广告数据回调
+//		 * 调用fetchAd方法后会发起广告请求，广告轮播时不会产生回调
+//		 */
+//        adv.setAdListener(new AdListener() {
+//            @Override
+//            public void onBannerClosed() {
+//
+//            }
+//
+//            @Override
+//            public void onAdClicked() {
+//
+//            }
+//
+//            @Override
+//            public void onNoAd() {
+//                Log.i("no ad cb:", "no");
+//            }
+//
+//            @Override
+//            public void onAdReceiv() {
+//                Log.i("ad recv cb:", "revc");
+//            }
+//
+//            @Override
+//            public void onAdExposure() {
+//
+//            }
+//        });
+//		/* 发起广告请求，收到广告数据后会展示数据	 */
+//        adv.fetchAd(adr);
+//    }
+
+
+    private void initBaiduAdertise() {
+        BDBannerAd bannerAdView = new BDBannerAd(this, "2A42aA2f3OcRTtsGgvPMrxzh", "sbwSIlPeYlsuVvXpLbWhOZuL");
         bannerAdView.setAdListener(new BDBannerAd.BannerAdListener() {
->>>>>>> baidu
             @Override
             public void onAdvertisementDataDidLoadSuccess() {
 
@@ -257,19 +284,9 @@ public class MainActivity extends Activity {
 
             }
         });
-<<<<<<< HEAD
-		/* 发起广告请求，收到广告数据后会展示数据	 */
-        adv.fetchAd(adr);
-
-    }
-
-    private void initAdvertise() {
-=======
         mBannerContainer.addView(bannerAdView);
-
->>>>>>> baidu
-
     }
+
 
     private void initVideoList() {
         String dir = Environment.getExternalStorageDirectory().getPath() + "/" +
@@ -278,7 +295,7 @@ public class MainActivity extends Activity {
         if (!saveDir.exists()) {
             return;
         }
-        File[] allFiles  = saveDir.listFiles();
+        File[] allFiles = saveDir.listFiles();
         ArrayList<String> fileNames = new ArrayList<>();
         for (File file : allFiles) {
             if (file.getName().endsWith(".mp4")) {
@@ -342,6 +359,7 @@ public class MainActivity extends Activity {
         Intent it = new Intent(this, WebServiceAct.class);
         startActivity(it);
     }
+
     @Override
     protected void onDestroy() {
         Log.i("duanjin", "activity get destroyed");
@@ -358,9 +376,8 @@ public class MainActivity extends Activity {
     }
 
 
-
     public static String getDeviceInfo(Context context) {
-        try{
+        try {
             org.json.JSONObject json = new org.json.JSONObject();
             android.telephony.TelephonyManager tm = (android.telephony.TelephonyManager) context
                     .getSystemService(Context.TELEPHONY_SERVICE);
@@ -372,19 +389,19 @@ public class MainActivity extends Activity {
             String mac = wifi.getConnectionInfo().getMacAddress();
             json.put("mac", mac);
 
-            if( TextUtils.isEmpty(device_id) ){
+            if (TextUtils.isEmpty(device_id)) {
                 device_id = mac;
             }
 
-            if( TextUtils.isEmpty(device_id) ){
-                device_id = android.provider.Settings.Secure.getString(context.getContentResolver(),android.provider.Settings.Secure.ANDROID_ID);
+            if (TextUtils.isEmpty(device_id)) {
+                device_id = android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
             }
 
             json.put("device_id", device_id);
             Log.i("DJDJDJ", json.toString());
 
             return json.toString();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
