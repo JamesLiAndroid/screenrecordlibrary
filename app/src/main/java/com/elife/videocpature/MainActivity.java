@@ -204,7 +204,7 @@ public class MainActivity extends Activity {
         initVideoList();
     }
 
-    private void initAdvertise() {
+    private void initTecentAdvertise() {
         AdView adv = new AdView(this, AdSize.BANNER, "1103948760","4040605069270554");
         mBannerContainer.addView(adv);
 		/* 广告请求数据，可以设置广告轮播时间，默认为30s  */
@@ -246,6 +246,10 @@ public class MainActivity extends Activity {
         });
 		/* 发起广告请求，收到广告数据后会展示数据	 */
         adv.fetchAd(adr);
+
+    }
+    private void initAdvertise() {
+
     }
     private void initVideoList() {
         String dir = Environment.getExternalStorageDirectory().getPath() + "/" +
