@@ -4,8 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
-    <!--android:paddingTop="@dimen/activity_vertical_margin"-->
-
 
     <RelativeLayout
         android:id="@+id/banner_container"
@@ -24,20 +22,4 @@
         android:choiceMode="multipleChoice"
         android:scrollbars="none"
         android:layout_weight="1"/>
-
-
-    <!--<RelativeLayout-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_alignParentRight="true">-->
-
-        <!--<ImageButton-->
-            <!--android:id="@+id/start"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/ic_compose"-->
-            <!--android:layout_alignParentRight="true"/>-->
-    <!--</RelativeLayout>-->
-
 </RelativeLayout>
