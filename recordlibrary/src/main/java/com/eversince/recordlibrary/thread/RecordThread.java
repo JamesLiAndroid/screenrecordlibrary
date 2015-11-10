@@ -1,4 +1,4 @@
-package com.elife.videocpature;
+package com.eversince.recordlibrary.thread;
 
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -18,24 +18,26 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-/**
- * Created by duanjin on 12/28/14.
- */
-public class RecordThread extends Thread{
 
+/**
+ * Created by duanjin on 11/9/15.
+ */
+
+public class RecordThread extends Thread {
+
+    private final static int KEY_FRAME_INTERVAL = 10;
+    private final static int FRAME_RATE = 30;
     //video needed variables
-    private int width;
-    private int height;
-    private int density;
+    private int mWidth;
+    private int mHeight;
+    private int mDensity;
     private MediaProjection mProjection;
     private AtomicBoolean mShouldStop = new AtomicBoolean(false);
     private MediaCodec mEncoder;
     private MediaMuxer mMuxer;
     private int mVideoTrackIndex;
     private Surface mInputSurface;
-    private final static int KEY_FRAME_INTERVAL = 10;
-    private final static int FRAME_RATE = 30;
-    private  static int BIT_RATE = 600000;
+    private int mBitRate = 600000;
     private String mDesDir;
     private VirtualDisplay mVirtualDisplay;
     private MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
@@ -55,13 +57,15 @@ public class RecordThread extends Thread{
 
 
     public RecordThread(DisplayMetrics metrics, MediaProjection projection, String dir) {
-        init(metrics.widthPixels, metrics.heightPixels, metrics, projection, dir, false, false, 3000000);
+        init(metrics.widthPixels, metrics.heightPixels,
+                metrics, projection, dir, false, false, 3000000);
 
     }
 
     public RecordThread(int iWidth, int iHeight, DisplayMetrics metrics, MediaProjection projection,
                         String dir, boolean needAudio, boolean landScapeModeOn, int videoQuality) {
-        init(iWidth, iHeight, metrics, projection, dir, needAudio, landScapeModeOn, videoQuality);
+        init(iWidth, iHeight, metrics, projection,
+                dir, needAudio, landScapeModeOn, videoQuality);
         android.os.Process.setThreadPriority(-19);
 
     }
@@ -70,35 +74,35 @@ public class RecordThread extends Thread{
                       String dir, boolean needAudio, boolean landScapeModeOn, int videoQuality) {
         mIsLandScapeMode = landScapeModeOn;
         if (mIsLandScapeMode) {
-            width = iHeight;
-            height = iWidth;
-            if (width ==0 || height == 0) {
-                width = metrics.heightPixels;
-                height = metrics.widthPixels;
+            mWidth= iHeight;
+            mHeight = iWidth;
+            if (mWidth == 0 || mHeight == 0) {
+                mWidth = metrics.heightPixels;
+                mHeight = metrics.widthPixels;
             }
 
         } else {
-            width = iWidth;
-            height = iHeight;
-            if (width ==0 || height == 0) {
-                width = metrics.widthPixels;
-                height = metrics.heightPixels;
+            mWidth = iWidth;
+            mHeight = iHeight;
+            if (mWidth == 0 || mHeight == 0) {
+                mWidth = metrics.widthPixels;
+                mHeight = metrics.heightPixels;
             }
         }
-        density = metrics.densityDpi;
+        mDensity = metrics.densityDpi;
         mProjection = projection;
         mDesDir = dir;
         mNeedAudio = needAudio;
-        BIT_RATE = videoQuality;
+        mBitRate = videoQuality;
 
     }
 
     private void setupEncoder() {
         MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC,
-                width, height);
+                mWidth, mHeight);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, KEY_FRAME_INTERVAL);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
-        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
+        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate);
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
 
@@ -112,6 +116,7 @@ public class RecordThread extends Thread{
         }
 
         if (mNeedAudio) {
+            //audio use default parameters
             MediaFormat audioFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, 44100, 1);
             audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 128000);
             audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 16384);
@@ -141,12 +146,11 @@ public class RecordThread extends Thread{
         File dir = new File(pathName);
         boolean result = true;
         if (!dir.exists()) {
-           result = dir.mkdir();
+            result = dir.mkdir();
         }
         if (result == true) {
             fileName = dir.getPath() + "/" + fileName + ".mp4";
-        }
-        else {
+        } else {
             fileName = Environment.getExternalStorageDirectory().getPath() + "/" + fileName + ".mp4";
 
         }
@@ -162,7 +166,7 @@ public class RecordThread extends Thread{
     public void run() {
         setupEncoder();
         setupMediaMuex();
-        mVirtualDisplay = mProjection.createVirtualDisplay("screenRecorder", width, height, density,
+        mVirtualDisplay = mProjection.createVirtualDisplay("screenRecorder", mWidth, mHeight, mDensity,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, mInputSurface, null, null);
         if (mNeedAudio) {
             mAudioThread = new AudioRecordThread(audioBuffer);
@@ -182,12 +186,11 @@ public class RecordThread extends Thread{
 
             //check Video index and add Video track
             if (outBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
-            } else if(outBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+            } else if (outBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 if (!mIsMutexStarted) {
                     mVideoTrackIndex = mMuxer.addTrack(mEncoder.getOutputFormat());
-                    mMuxerTrackNumber ++;
-                    if (mMuxerTrackNumber == 2)
-                    {
+                    mMuxerTrackNumber++;
+                    if (mMuxerTrackNumber == 2) {
                         mMuxer.start();
                         mIsMutexStarted = true;
                     }
@@ -242,11 +245,11 @@ public class RecordThread extends Thread{
                 audioBuffer.remove();
                 int inputBufferIdx = mAudioEncoder.dequeueInputBuffer(-1);
                 if (inputBufferIdx >= 0) {
-                    ByteBuffer inputBuffer =  mAudioEncoder.getInputBuffer(inputBufferIdx);
+                    ByteBuffer inputBuffer = mAudioEncoder.getInputBuffer(inputBufferIdx);
                     inputBuffer.clear();
                     inputBuffer.put(audioData);
-                    mAudioEncoder.queueInputBuffer(inputBufferIdx,0, audioData.length,
-                            (System.nanoTime() - mAudioStartTime) /1000, 0 );
+                    mAudioEncoder.queueInputBuffer(inputBufferIdx, 0, audioData.length,
+                            (System.nanoTime() - mAudioStartTime) / 1000, 0);
                 }
             }
         }
@@ -268,7 +271,7 @@ public class RecordThread extends Thread{
         while (!mShouldStop.get()) {
             int outBufferIndex = mEncoder.dequeueOutputBuffer(mBufferInfo, 1000L);
             if (outBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
-            } else if(outBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+            } else if (outBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 if (!mIsMutexStarted) {
                     mVideoTrackIndex = mMuxer.addTrack(mEncoder.getOutputFormat());
                     mMuxer.start();
@@ -308,3 +311,5 @@ public class RecordThread extends Thread{
         }
     }
 }
+
+

@@ -51,7 +51,7 @@
         <activity android:name="com.elife.videocpature.WebServiceAct"
             android:screenOrientation="portrait"/>
 
-        <service android:name="com.elife.videocpature.RecordService">
+        <service android:name="com.eversince.recordlibrary.service.RecordService">
 
         </service>
         <service android:name="com.elife.webserver.HTTPService"/>

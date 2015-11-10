@@ -26,11 +26,12 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.baidu.appx.BDBannerAd;
+import com.eversince.recordlibrary.RecordConst;
+import com.eversince.recordlibrary.service.RecordService;
 import com.eversince.screenrecord.R;
 
 import com.qq.e.ads.banner.ADSize;
 import com.qq.e.ads.banner.AbstractBannerADListener;
-import com.qq.e.ads.banner.BannerADListener;
 import com.qq.e.ads.banner.BannerView;
 import com.umeng.analytics.MobclickAgent;
 
@@ -39,16 +40,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
+
 public class MainActivity extends Activity {
-    public final static String RESULT = "result";
-    public final static String DATA = "data";
-    public final static String ACTION = "com.dchen.videocapture.complete";
+    public final static String RESULT = "com.record.result";
+    public final static String DATA = "com.record.data.intent";
 
     private MediaProjectionManager mProjectionManager;
     private static final int REQUEST_CODE = 0x10001;
     private boolean mIsRecording = false;
     private DisplayMetrics mMetrics = new DisplayMetrics();
-    private RecordThread mRecordThread;
 
     private ListView mList;
     private VideoListAdapter mAdapter;
@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
     final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equalsIgnoreCase(ACTION))
+            if (intent.getAction().equalsIgnoreCase(RecordConst.RECORD_COMPLETE_ACTION))
                 MainActivity.this.initVideoList();
             MainActivity.this.mIsRecording = false;
         }
@@ -153,7 +153,7 @@ public class MainActivity extends Activity {
         initVideoList();
         mBannerContainer = (RelativeLayout) findViewById(R.id.banner_container);
         initAdvertise();
-        mFilter = new IntentFilter(ACTION);
+        mFilter = new IntentFilter(RecordConst.RECORD_COMPLETE_ACTION);
         registerReceiver(mReceiver, mFilter);
         getDeviceInfo(this);
     }
@@ -193,10 +193,24 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            mIsRecording = true;
+            mIsRecording = false;
             Intent intent = new Intent(this, RecordService.class);
-            intent.putExtra(RESULT, resultCode);
-            intent.putExtra(DATA, data);
+
+            int width = ParameterManager.getInstance(this).getVideoWidth();
+            int height = ParameterManager.getInstance(this).getVideoHeight();
+            boolean needAudio = ParameterManager.getInstance(this).needAudio();
+            boolean isLandScapeMode = ParameterManager.getInstance(this).isLandScapeModeOn();
+            int quality = ParameterManager.getInstance(this).getVideoQuality();
+
+            intent.putExtra(RecordConst.RECORD_INTENT_RESULT, resultCode);
+            intent.putExtra(RecordConst.RECORD_DATA_INTENT, data);
+            intent.putExtra(RecordConst.KEY_RECORD_SCREEN_WITH, width);
+            intent.putExtra(RecordConst.KEY_RECORD_SCREEN_HEIGHT, height);
+            intent.putExtra(RecordConst.KEY_RECORD_NEED_AUDIO, needAudio);
+            intent.putExtra(RecordConst.KEY_RECORD_IS_LANDSCAPE, isLandScapeMode);
+            intent.putExtra(RecordConst.KEY_VIDEO_QUALITY, quality);
+            intent.putExtra(RecordConst.KEY_VIDEO_DIR, getResources().getString(R.string.save_dir));
+            intent.putExtra(RecordConst.KEY_NOTIFICATION_ICON, R.drawable.ic_launcher);
             startService(intent);
             moveTaskToBack(true);
         }
@@ -356,18 +370,6 @@ public class MainActivity extends Activity {
             //start recording
             startRecordingIntent();
         }
-    }
-
-    /**
-     * 停止录像
-     */
-    public void stopRecording() {
-        if (null != mRecordThread) {
-            mRecordThread.quit();
-            mRecordThread = null;
-            mIsRecording = false;
-        }
-        initVideoList();
     }
 
     public void startRecordingIntent() {

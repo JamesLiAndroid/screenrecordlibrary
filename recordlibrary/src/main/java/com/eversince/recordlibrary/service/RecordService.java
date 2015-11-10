@@ -1,5 +1,8 @@
-package com.elife.videocpature;
+package com.eversince.recordlibrary.service;
 
+/**
+ * Created by duanjin on 11/9/15.
+ */
 import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -12,19 +15,20 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.eversince.screenrecord.R;
-
+import com.eversince.recordlibrary.R;
+import com.eversince.recordlibrary.RecordConst;
+import com.eversince.recordlibrary.thread.RecordThread;
 
 /**
  * Created by duanjin on 1/11/15.
  */
 public class RecordService extends Service{
 
-    public static final String STOP_ACTION = "STOP_ACTION";
     private RecordThread mRecordThread;
     private DisplayMetrics mMetrics  = new DisplayMetrics();
     private boolean mIsRecording = false;
@@ -34,18 +38,18 @@ public class RecordService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (null != intent) {
             String action = intent.getAction();
-            if (null != action && action.equals(STOP_ACTION)) {
+            if (null != action && action.equals(RecordConst.RECORD_STOP_ACTION)) {
                 mRecordThread.quit();
                 stopForeground(true);
                 Intent intent1 = new Intent();
-                intent1.setAction(MainActivity.ACTION);
+                intent1.setAction(RecordConst.RECORD_COMPLETE_ACTION);
                 sendBroadcast(intent1);
                 return Service.START_NOT_STICKY;
             }
         }
         if (null != intent) {
-            int result = intent.getIntExtra(MainActivity.RESULT, -1);
-            Intent data = (Intent) intent.getParcelableExtra(MainActivity.DATA);
+            int result = intent.getIntExtra(RecordConst.RECORD_INTENT_RESULT, -1);
+            Intent data = (Intent) intent.getParcelableExtra(RecordConst.RECORD_DATA_INTENT);
             if (result == Activity.RESULT_OK) {
                 //create mediaprojection
                 MediaProjectionManager mpm = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -55,13 +59,18 @@ public class RecordService extends Service{
                 WindowManager windowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
                 windowManager.getDefaultDisplay().getRealMetrics(mMetrics);
 
-                int width = ParameterManager.getInstance(this).getVideoWidth();
-                int height = ParameterManager.getInstance(this).getVideoHeight();
-                boolean needAudio = ParameterManager.getInstance(this).needAudio();
-                boolean isLandScapeMode = ParameterManager.getInstance(this).isLandScapeModeOn();
-                int quality = ParameterManager.getInstance(this).getVideoQuality();
+                int width = intent.getIntExtra(RecordConst.KEY_RECORD_SCREEN_WITH, 0);
+                int height = intent.getIntExtra(RecordConst.KEY_RECORD_SCREEN_HEIGHT, 0);
+                boolean needAudio = intent.getBooleanExtra(RecordConst.KEY_RECORD_NEED_AUDIO, false);
+                boolean isLandScapeMode = intent.getBooleanExtra(RecordConst.KEY_RECORD_IS_LANDSCAPE, false);
+                int quality = intent.getIntExtra(RecordConst.KEY_VIDEO_QUALITY, 1500000);
+                final int iconRes = intent.getIntExtra(RecordConst.KEY_NOTIFICATION_ICON, R.drawable.ic_launcher);
+                String dir = intent.getStringExtra(RecordConst.KEY_VIDEO_DIR);
+                if (TextUtils.isEmpty(dir)) {
+                    dir = "screenrecorder";
+                }
                 mRecordThread = new RecordThread(width, height, mMetrics, mp,
-                        getResources().getString(R.string.save_dir), needAudio, isLandScapeMode, quality);
+                        dir, needAudio, isLandScapeMode, quality);
                 mIsRecording = true;
 
                 mToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
@@ -76,14 +85,14 @@ public class RecordService extends Service{
                     public void onFinish() {
                         mRecordThread.start();
                         Intent clickIntent = new Intent(getBaseContext(), RecordService.class);
-                        clickIntent.setAction(STOP_ACTION);
+                        clickIntent.setAction(RecordConst.RECORD_STOP_ACTION);
                         PendingIntent pStop = PendingIntent.getService(getBaseContext(), 0, clickIntent, 0);
 
-                        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+                        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), iconRes);
                         Notification.Builder builder = new Notification.Builder(RecordService.this);
 
                         builder.setContentIntent(pStop)
-                                .setSmallIcon(R.drawable.ic_launcher)
+                                .setSmallIcon(iconRes)
                                 .setLargeIcon(largeIcon)
                                 .setTicker(getString(R.string.action_about))
                                 .setWhen(System.currentTimeMillis())
@@ -105,3 +114,5 @@ public class RecordService extends Service{
         return null;
     }
 }
+
+

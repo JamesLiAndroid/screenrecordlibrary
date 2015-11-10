@@ -1,4 +1,5 @@
-package com.elife.videocpature;
+package com.eversince.recordlibrary.thread;
+
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -8,7 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by duanjin on 1/2/15.
+ * Created by duanjin on 11/9/15.
  */
 public class AudioRecordThread extends Thread{
 
@@ -62,3 +63,5 @@ public class AudioRecordThread extends Thread{
         mIsRecording.set(false);
     }
 }
+
+
