@@ -9,3 +9,5 @@
 /.idea/misc.xml
 .idea/gradle.xml
 .idea/misc.xml
+mykey.jks
+gradle.properties

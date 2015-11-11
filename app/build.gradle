@@ -48,6 +48,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:cardview-v7:22.0.0"
     compile "com.umeng.analytics:analytics:latest.integration"
-    compile project(':recordlibrary')
-
+//    compile project(':recordlibrary')
+    compile 'com.github.charlesjean:recordlibrary:0.0.2'
 }
