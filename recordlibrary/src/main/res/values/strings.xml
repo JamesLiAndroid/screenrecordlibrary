@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">recordLibrary</string>
-    <!-- notification -->
-    <string name="n_title">正在录像</string>
-    <string name="n_content">分辨率</string>
-    <string name="n_btn">点击停止录像</string>
-    <string name="action_about">关于</string>
-    <string name="start_tips">%1$s秒之后开始录像</string>
-</resources>
