@@ -24,9 +24,9 @@ android {
     signingConfigs {
         myConfigs {
             storeFile file("mykey.jks")
-            storePassword "c!d@j#@126.com"
-            keyPassword "c!d@j#@126.com"
-            keyAlias "djchen"
+            storePassword STOREPASSWD
+            keyPassword KEYPASSWD
+            keyAlias KEYALIAS
         }
     }
 
