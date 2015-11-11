@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string name="app_name">完美录像</string>
+    <string name="hello_world">我是广告占位符</string>
+    <string name="action_settings">设置</string>
+    <string name="action_donate">推荐给朋友</string>
+    <string name="action_about">关于</string>
+    <string name="action_share">分享</string>
+    <string name="action_del">删除</string>
+    <string name="selected_items">项已选中</string>
+    <string name="action_manage_file">管理文件</string>
+
+    <!--setting preference strings-->
+    <string name="save_dir">screenrecorder</string>
+    <string name="record_audio">录制音频</string>
+    <string name="record_audio_key">audio</string>
+    <string name="record_mode_key">orientation</string>
+    <string name="video_dimension">视频分辨率</string>
+    <string name="video_dimension_key">video_size</string>
+    <string name="video_dimension_summary">录制视频分辨率为%1$s</string>
+    <string name="landscape_mode">横屏模式</string>
+    <string name="start_tips">%1$s秒之后开始录像</string>
+    <string name="video_quality">设置视频质量</string>
+    <string name="video_quality_chose">视频质量为%1$s</string>
+    <string name="video_quality_key">quality_key</string>
+    <string name="quality_high">高</string>
+    <string name="quality_medium">中</string>
+    <string name="quality_low">低</string>
+
+    <!-- notification -->
+    <string name="n_title">正在录像</string>
+    <string name="n_content">分辨率</string>
+    <string name="n_btn">点击停止录像</string>
+
+    <!--about-->
+    <string name="about_text">完美录像 是一款为Android设备提供流畅、高质量视频录制功能的软件，由作者在业余时间开发，欢迎提出意见或给予帮助</string>
+    <string name="contact_auth">联系作者</string>
+    <string name="recommend_to">推荐给朋友</string>
+    <string name="record_already_start">录像已经开始，请点击状态栏结束录像</string>
+    <string name="web_server_tip">请确保手机与PC连接至同一wifi网络</string>
+    <string name="web_server_tip1">在PC浏览器中输入：</string>
+    <string name="web_server_title">远程文件管理</string>
+
+
+</resources>
